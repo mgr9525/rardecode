@@ -137,7 +137,7 @@ func findSig(br *bufio.Reader) (int, error) {
 // files in a multi-volume archive
 type volume struct {
 	fileBlockReader
-	f     *os.File      // current file handle
+	f     io.ReadCloser // current file handle
 	br    *bufio.Reader // buffered reader for current volume file
 	dir   string        // volume directory
 	file  string        // current volume file (not including directory)
@@ -320,6 +320,19 @@ func openVolume(name, password string) (*volume, error) {
 		return nil, err
 	}
 	v.files = append(v.files, name)
+	return v, nil
+}
+func openVolumeStream(rd io.ReadCloser, password string) (*volume, error) {
+	var err error
+	v := new(volume)
+	v.f = rd
+	v.br = bufio.NewReader(v.f)
+	v.fileBlockReader, err = newFileBlockReader(v.br, password)
+	if err != nil {
+		v.f.Close()
+		return nil, err
+	}
+	//v.files = append(v.files, name)
 	return v, nil
 }
 

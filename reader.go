@@ -374,3 +374,15 @@ func OpenReader(name, password string) (*ReadCloser, error) {
 	rc.Reader.init(v)
 	return rc, nil
 }
+
+// OpenReaderStream opens a RAR archive specified by the name and returns a ReadCloser.
+func OpenReaderStream(rd io.ReadCloser, password string) (*ReadCloser, error) {
+	v, err := openVolumeStream(rd, password)
+	if err != nil {
+		return nil, err
+	}
+	rc := new(ReadCloser)
+	rc.v = v
+	rc.Reader.init(v)
+	return rc, nil
+}
